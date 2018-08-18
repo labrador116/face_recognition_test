@@ -98,7 +98,7 @@ public class CameraSourcePreview extends ViewGroup {
         start(cameraSource);
     }
 
-    private void stop() {
+    public void stop() {
         if (mCameraSource != null) {
             mCameraSource.stop();
         }

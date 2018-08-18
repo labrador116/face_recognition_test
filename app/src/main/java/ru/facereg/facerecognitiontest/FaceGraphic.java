@@ -16,8 +16,6 @@ import ru.facereg.facerecognitiontest.camera.GraphicOverlay;
 public class FaceGraphic extends GraphicOverlay.Graphic {
 
     private static final float FACE_POSITION_RADIUS = 10.0f;
-    private static final float ID_Y_OFFSET = 50.0f;
-    private static final float ID_X_OFFSET = -50.0f;
     private static final float BOX_STROKE_WIDTH = 5.0f;
 
     private Paint mFacePositionPaint;
@@ -44,7 +42,7 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
 
         //рисуем точку по центру
         float x = translateX(mFace.getPosition().x + mFace.getWidth() / 2);
-        float y = translateX(mFace.getPosition().y + mFace.getHeight() / 2);
+        float y = translateY(mFace.getPosition().y + mFace.getHeight() / 2);
         canvas.drawCircle(x, y, FACE_POSITION_RADIUS, mFacePositionPaint);
 
         //рисуем рамку
