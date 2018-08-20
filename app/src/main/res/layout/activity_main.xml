@@ -9,12 +9,23 @@
     <ru.facereg.facerecognitiontest.camera.CameraSourcePreview
         android:id="@+id/preview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        >
 
         <ru.facereg.facerecognitiontest.camera.GraphicOverlay
             android:id="@+id/overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-
     </ru.facereg.facerecognitiontest.camera.CameraSourcePreview>
+    <Button
+        android:id="@+id/create_pic_button"
+        android:layout_weight="0.5"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:text="Start"
+        android:textColor="@android:color/white"
+        android:background="@color/colorPrimaryDark"
+        android:visibility="gone"
+        />
 </LinearLayout>

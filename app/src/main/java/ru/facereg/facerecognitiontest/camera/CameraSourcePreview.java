@@ -2,16 +2,20 @@ package ru.facereg.facerecognitiontest.camera;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Canvas;
 import android.support.annotation.RequiresPermission;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import com.google.android.gms.common.images.Size;
-import com.google.android.gms.vision.CameraSource;
 
 import java.io.IOException;
+
+import ru.facereg.facerecognitiontest.CameraSource;
 
 /**
  * Класс для управление вьюхой отображающий серию графических элементов
@@ -42,7 +46,6 @@ public class CameraSourcePreview extends ViewGroup {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         int width = 320;
         int height = 240;
-
         if (mCameraSource != null) {
             Size size = mCameraSource.getPreviewSize();
             if (size != null) {
@@ -61,17 +64,8 @@ public class CameraSourcePreview extends ViewGroup {
         final int layoutWidth = right - left;
         final int layoutHeight = bottom - top;
 
-        //Вычисляем подходящую высоту и ширину
-        int childWidth = layoutWidth;
-        int childHeight = (int) (((float) layoutWidth / (float) width) * height);
-
-        if (childHeight > layoutHeight) {
-            childHeight = layoutHeight;
-            childWidth = (int) (((float) layoutHeight / (float) height) * width);
-        }
-
         for (int i = 0; i < getChildCount(); i++) {
-            getChildAt(i).layout(0, 0, childWidth, childHeight);
+            getChildAt(i).layout(0, 0, layoutWidth, layoutHeight);
         }
 
         try {
@@ -157,7 +151,7 @@ public class CameraSourcePreview extends ViewGroup {
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+            int i =3;
         }
 
         @Override

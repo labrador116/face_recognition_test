@@ -3,6 +3,8 @@ package ru.facereg.facerecognitiontest;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.vision.face.Face;
 
@@ -20,9 +22,8 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
 
     private Paint mFacePositionPaint;
     private Paint mBoxPaint;
-
     private volatile Face mFace;
-    private float mFaceHapiness;
+    private volatile Button mCreatePicButton;
 
     public FaceGraphic(GraphicOverlay overlay) {
         super(overlay);
@@ -53,10 +54,12 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         float right = x + xOffset;
         float bottom = y + yOffset;
         canvas.drawRect(left, top, right, bottom, mBoxPaint);
+        mCreatePicButton.setVisibility(View.VISIBLE);
     }
 
-    public void updateFace(Face face) {
+    public void updateFace(Face face, Button createPictureButton) {
         mFace = face;
+        mCreatePicButton = createPictureButton;
         postInvalidate();
     }
 }

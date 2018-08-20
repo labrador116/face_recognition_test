@@ -5,11 +5,15 @@ import android.graphics.Canvas;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.vision.CameraSource;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import ru.facereg.facerecognitiontest.FaceDetectionActivity;
+import ru.facereg.facerecognitiontest.ICreatePicture;
 
 /**
  * Вьюшка для отображения серии графических элементов
@@ -25,6 +29,7 @@ public class GraphicOverlay extends View {
     private float mHeightScaleFactor = 1.0f;
     private int mFacing = CameraSource.CAMERA_FACING_BACK;
     private Set<Graphic> mGraphics = new HashSet<>();
+    private boolean isNeedGetPhoto = false;
 
     public static abstract class Graphic {
         private GraphicOverlay mOverlay;
@@ -112,9 +117,18 @@ public class GraphicOverlay extends View {
         postInvalidate();
     }
 
+    public void setNeedGetPhoto(boolean needGetPhoto) {
+        isNeedGetPhoto = needGetPhoto;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
+        if (isNeedGetPhoto){
+            ICreatePicture createPicture = (ICreatePicture) getContext();
+            createPicture.onCreatePicture();
+        }
 
         synchronized (mLock) {
             if (mPreviewWidth != 0
