@@ -5,6 +5,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Header;
+import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
@@ -15,5 +16,5 @@ import retrofit2.http.Part;
 public interface IUploadPhotoArchiveToServer {
     @Multipart
     @POST("api/frames/sync-v2")
-    Call<ResponseBody> upload(@Part("setId")RequestBody id, @Header("authorization") String jwt, @Part("file") RequestBody file);
+    Call<ResponseBody> upload(@Part("setId")RequestBody id, @Part("keepStream") RequestBody keep, @Header("authorization") String jwt, @Part MultipartBody.Part file);
 }

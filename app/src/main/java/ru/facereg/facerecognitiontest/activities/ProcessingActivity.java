@@ -80,8 +80,10 @@ public class ProcessingActivity extends AppCompatActivity {
 
     public void uploadArchive(File file) {
         RequestBody requestFile = RequestBody.create(MediaType.parse("application/zip"), file);
+        MultipartBody.Part partFile = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
         String id = "0";
         RequestBody reqId = RequestBody.create(MultipartBody.FORM, id);
+        RequestBody keepStream = RequestBody.create(MultipartBody.FORM, "true");
         String jwt = "JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3RAdGVzdC50ZXN0IiwiY3MiOiI1OTUwOWVhMzZjYzAwMDAwIiwiaWF0IjoxNTM0NDE4NjUyLCJhdWQiOiIqLmxvY2FsaG9zdCIsImlzcyI6Im1zLXVzZXJzIn0.UfxJBd3i8j7BJUgoA5EOQsJ30Iy0CDXNPSW52Vc6d1E";
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -99,7 +101,7 @@ public class ProcessingActivity extends AppCompatActivity {
                 .build();
 
         IUploadPhotoArchiveToServer uploadService = retrofit.create(IUploadPhotoArchiveToServer.class);
-        Call<ResponseBody> call = uploadService.upload(reqId, jwt, requestFile);
+        Call<ResponseBody> call = uploadService.upload(reqId, keepStream, jwt, partFile);
         call.enqueue(new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

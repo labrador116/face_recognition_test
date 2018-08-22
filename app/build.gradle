@@ -9,8 +9,8 @@ android {
         applicationId "ru.facereg.facerecognitiontest"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName "1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
