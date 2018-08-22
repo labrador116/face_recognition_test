@@ -1,9 +1,11 @@
-package ru.facereg.facerecognitiontest;
+package ru.facereg.facerecognitiontest.activities;
 
 import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,13 +29,18 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ru.facereg.facerecognitiontest.FaceGraphic;
+import ru.facereg.facerecognitiontest.ICreatePicture;
+import ru.facereg.facerecognitiontest.R;
 import ru.facereg.facerecognitiontest.camera.CameraSourcePreview;
 import ru.facereg.facerecognitiontest.camera.GraphicOverlay;
+import ru.facereg.facerecognitiontest.lib.CameraSource;
 import ru.facereg.facerecognitiontest.utils.FileUtils;
 
 public class FaceDetectionActivity extends AppCompatActivity implements ICreatePicture {
     private static final int REQUEST_CAMERA_PERMISSION = 3;
-    private static int PHOTO_NAME = 1;
+    private static int PHOTO_SECOND_NAME = 1;
+    private static int PHOTO_FIRST_NAME = 0;
 
     private CameraSource mCameraSource = null;
     private CameraSourcePreview mPreview;
@@ -41,7 +48,7 @@ public class FaceDetectionActivity extends AppCompatActivity implements ICreateP
     private Button mCreatePictureButton;
     private Timer mTimer;
     private LooperThread mLooperThread;
-    private boolean isTimerFullyWorked;
+    private boolean isTimerWorking;
     private boolean safeToTakePicture = true;
 
     @Override
@@ -58,12 +65,15 @@ public class FaceDetectionActivity extends AppCompatActivity implements ICreateP
             public void onClick(View v) {
                 mTimer = new Timer();
                 mGraphicOverlay.setNeedGetPhoto(true);
+                isTimerWorking = true;
                 mTimer.schedule(new GetPhotosPeriodTimerTask(), 5000);
             }
         });
 
         int permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-        if (permission == PackageManager.PERMISSION_GRANTED) {
+        int storagePermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permission == PackageManager.PERMISSION_GRANTED &&
+                storagePermission == PackageManager.PERMISSION_GRANTED) {
             createCameraSource();
         } else {
             requestCamPermission();
@@ -74,6 +84,7 @@ public class FaceDetectionActivity extends AppCompatActivity implements ICreateP
     protected void onResume() {
         super.onResume();
         startCameraSource();
+        clearPhotosIfExist();
     }
 
     @Override
@@ -96,7 +107,8 @@ public class FaceDetectionActivity extends AppCompatActivity implements ICreateP
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (REQUEST_CAMERA_PERMISSION == requestCode) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 createCameraSource();
             }
         } else {
@@ -116,15 +128,15 @@ public class FaceDetectionActivity extends AppCompatActivity implements ICreateP
 
     @Override
     public void onCreatePicture() {
-            if (mLooperThread.mHandler != null) {
-                Message msg = mLooperThread.mHandler.obtainMessage(0);
-                mLooperThread.mHandler.sendMessage(msg);
-            }
+        if (mLooperThread.mHandler != null) {
+            Message msg = mLooperThread.mHandler.obtainMessage(0);
+            mLooperThread.mHandler.sendMessage(msg);
+        }
     }
 
     private void requestCamPermission() {
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.CAMERA},
+                new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 REQUEST_CAMERA_PERMISSION);
     }
 
@@ -196,12 +208,24 @@ public class FaceDetectionActivity extends AppCompatActivity implements ICreateP
 
         @Override
         public void onMissing(Detector.Detections<Face> detections) {
-            if (!isTimerFullyWorked) {
+            if (isTimerWorking) {
+                mTimer.cancel();
+                mGraphicOverlay.setNeedGetPhoto(false);
                 clearPhotosIfExist();
-            } else {
-                isTimerFullyWorked = false;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AlertDialog dialog = new AlertDialog.Builder(FaceDetectionActivity.this)
+                                .setTitle("Face lost. Please restart")
+                                .setMessage("Face lost. Please restart")
+                                .create();
+                        dialog.show();
+                    }
+                });
             }
-            PHOTO_NAME = 1;
+            isTimerWorking = false;
+            PHOTO_SECOND_NAME = 1;
+            PHOTO_FIRST_NAME = 0;
             mOverlay.setNeedGetPhoto(false);
             hideButton();
             mOverlay.remove(mGraphic);
@@ -214,45 +238,70 @@ public class FaceDetectionActivity extends AppCompatActivity implements ICreateP
     }
 
     private void clearPhotosIfExist() {
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                FileUtils.clearPhotoFolder();
+                return null;
+            }
+        }.execute();
     }
 
+    /**
+     * Задача которая выполнится по окончании работы таймера
+     */
     private class GetPhotosPeriodTimerTask extends TimerTask {
+        @Override
+        public boolean cancel() {
+            return super.cancel();
+        }
 
         @Override
         public void run() {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    isTimerFullyWorked = true;
+                    isTimerWorking = false;
                     mGraphicOverlay.setNeedGetPhoto(false);
-                    AlertDialog dialog = new AlertDialog.Builder(FaceDetectionActivity.this)
-                            .setTitle("Ready!")
-                            .setMessage("Photos creation were ready successful")
-                            .create();
-                    dialog.show();
+                    Intent intent = new Intent(FaceDetectionActivity.this, ProcessingActivity.class);
+                    startActivity(intent);
                 }
             });
         }
     }
 
-    private void operation(){
-          boolean res =  mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
-                @Override
-                public void onPictureTaken(byte[] bytes) {
-                    try {
-                        FileUtils.saveImage(bytes, String.valueOf(PHOTO_NAME), "png");
-                        safeToTakePicture = true;
-                    } catch (IOException e) {
-                        e.printStackTrace();
+    /**
+     * Делаем фото
+     */
+    private void operation() {
+        boolean res = mCameraSource.takePicture(null, new CameraSource.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] bytes) {
+                try {
+                    safeToTakePicture = true;
+                    FileUtils.saveImage(bytes,
+                            String.valueOf(PHOTO_FIRST_NAME) + "_" + String.valueOf(PHOTO_SECOND_NAME),
+                            "png");
+                    if (PHOTO_SECOND_NAME >= 5) {
+                        PHOTO_SECOND_NAME = 1;
+                        PHOTO_FIRST_NAME++;
+                    } else {
+                        PHOTO_SECOND_NAME++;
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            },safeToTakePicture);
-          safeToTakePicture = res;
+            }
+        }, safeToTakePicture);
+        safeToTakePicture = res;
     }
 
-    private class LooperThread extends Thread{
+    /**
+     * Thread для обработки очереди из вызовов сделать фото
+     */
+    private class LooperThread extends Thread {
         public Handler mHandler;
-        private Object lock = new Object();
 
         @Override
         public void run() {
@@ -260,7 +309,7 @@ public class FaceDetectionActivity extends AppCompatActivity implements ICreateP
             mHandler = new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
-                    if (msg.what==0 && safeToTakePicture){
+                    if (msg.what == 0 && safeToTakePicture) {
                         operation();
                     }
                 }

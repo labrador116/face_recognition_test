@@ -1,4 +1,4 @@
-package ru.facereg.facerecognitiontest;
+package ru.facereg.facerecognitiontest.lib;
 
 /**
  * @author Markin Andrey on 20.08.2018.

@@ -1,4 +1,4 @@
-package ru.facereg.facerecognitiontest;
+package ru.facereg.facerecognitiontest.lib;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

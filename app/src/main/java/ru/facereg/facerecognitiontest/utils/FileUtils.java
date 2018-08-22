@@ -11,14 +11,12 @@ import java.io.IOException;
  */
 public class FileUtils {
     public static File saveImage(byte[] content, String name, String extension) throws IOException {
-        // Create an image file name
-
         String storageDir = Environment.getExternalStorageDirectory().toString();
         File folder = new File(storageDir + File.separator + "face_img");
-        if (!folder.exists()){
+        if (!folder.exists()) {
             folder.mkdirs();
         }
-        File image = new File(folder, name+"."+extension);
+        File image = new File(folder, name + "." + extension);
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(image);
@@ -30,5 +28,16 @@ public class FileUtils {
             }
         }
         return image;
+    }
+
+    public static void clearPhotoFolder() {
+        String storageDir = Environment.getExternalStorageDirectory().toString();
+        File folder = new File(storageDir + File.separator + "face_img");
+        if (folder.isDirectory()) {
+            String[] files = folder.list();
+            for (int i = 0; i < files.length; i++) {
+                new File(folder, files[i]).delete();
+            }
+        }
     }
 }

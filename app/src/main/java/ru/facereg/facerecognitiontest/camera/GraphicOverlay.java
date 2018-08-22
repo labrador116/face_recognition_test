@@ -5,14 +5,12 @@ import android.graphics.Canvas;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.Button;
 
 import com.google.android.gms.vision.CameraSource;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import ru.facereg.facerecognitiontest.FaceDetectionActivity;
 import ru.facereg.facerecognitiontest.ICreatePicture;
 
 /**

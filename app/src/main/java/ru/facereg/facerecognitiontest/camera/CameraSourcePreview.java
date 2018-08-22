@@ -2,20 +2,17 @@ package ru.facereg.facerecognitiontest.camera;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Canvas;
 import android.support.annotation.RequiresPermission;
 import android.util.AttributeSet;
-import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
 import com.google.android.gms.common.images.Size;
 
 import java.io.IOException;
 
-import ru.facereg.facerecognitiontest.CameraSource;
+import ru.facereg.facerecognitiontest.lib.CameraSource;
 
 /**
  * Класс для управление вьюхой отображающий серию графических элементов
